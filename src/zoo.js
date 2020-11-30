@@ -11,36 +11,73 @@ eslint no-unused-vars: [
 
 const data = require('./data');
 
-function animalsByIds(ids) {
-  // seu código aqui
+function animalsByIds(...ids) {
+  return data.animals.filter(animal => ids.includes(animal.id));
+  // Feito com a orientação do Murilo Wolf na fechamento do primeiro dia do projeto
 }
 
 function animalsOlderThan(animal, age) {
-  // seu código aqui
+  const findAnimal = data.animals.find(item => item.name === animal);
+  return findAnimal.residents.every(resident => resident.age >= age);
 }
 
 function employeeByName(employeeName) {
-  // seu código aqui
+  if (employeeName === undefined) {
+    return {};
+  }
+  return data.employees.find(NM => NM.firstName === employeeName || NM.lastName === employeeName);
 }
 
 function createEmployee(personalInfo, associatedWith) {
-  // seu código aqui
+  return Object.assign(personalInfo, associatedWith);
+  // Consulta realizada em https://www.tutorialspoint.com/object-assign-in-javascript
 }
 
 function isManager(id) {
-  // seu código aqui
+  return data.employees.some((manager, index) => manager.managers[index] === id);
 }
 
-function addEmployee(id, firstName, lastName, managers, responsibleFor) {
-  // seu código aqui
+function addEmployee(id, firstName, lastName, managers = [], responsibleFor = []) {
+  data.employees.push({ id, firstName, lastName, managers, responsibleFor });
 }
 
 function animalCount(species) {
-  // seu código aqui
+  const nameAnimals = data.animals.map(animal => animal.name);
+  const numberAnimals = data.animals.map(animal => animal.residents.length);
+  const obj = {};
+
+  if (species === undefined) {
+    nameAnimals.forEach((nameAnimal, value) => {
+      obj[nameAnimal] = numberAnimals[value];
+    });
+    return obj;
+  }
+  const amount = data.animals.find(nameAnimal => nameAnimal.name === species).residents.length;
+  return amount;
 }
 
-function entryCalculator(entrants) {
-  // seu código aqui
+
+function entryCalculator(...entrants) {
+  if (entrants === undefined || Object.keys(entrants).length === 0) {
+    return 0;
+  }
+  let general = 0;
+
+  const { Adult, Senior, Child } = data.prices;
+
+  entrants.map((visitants) => {
+    if (visitants.Adult) {
+      general += visitants.Adult * Adult;
+    }
+    if (visitants.Senior) {
+      general += visitants.Senior * Senior;
+    }
+    if (visitants.Child) {
+      general += visitants.Child * Child;
+    }
+    return general;
+  });
+  return general;
 }
 
 function animalMap(options) {
@@ -48,15 +85,30 @@ function animalMap(options) {
 }
 
 function schedule(dayName) {
-  // seu código aqui
+  const hour = Object.keys(data.hours);
+
+  if (dayName === undefined) {
+    hour.forEach((day) => {
+      data.hours[day] = `Open from ${data.hours[day].open}am until ${data.hours[day].close - 12}pm`;
+    });
+    data.hours.Monday = 'CLOSED';
+    return data.hours;
+  }
+  return { [dayName]: data.hours[dayName] };
 }
 
 function oldestFromFirstSpecies(id) {
-  // seu código aqui
+  const responsableEmployee = data.employees.find(employee => employee.id === id).responsibleFor[0];
+  const animalId = data.animals.find(animal => animal.id === responsableEmployee);
+  const oldAnimals = animalId.residents.sort((itemA, itemB) => itemB.age - itemA.age)[0];
+  return [oldAnimals.name, oldAnimals.sex, oldAnimals.age];
 }
 
 function increasePrices(percentage) {
-  // seu código aqui
+  const { Adult, Senior, Child } = data.prices;
+  data.prices.Adult = (Math.round((Adult + ((Adult * percentage) / 100)) * 100) / 100);
+  data.prices.Senior = (Math.round((Senior + ((Senior * percentage) / 100)) * 100) / 100);
+  data.prices.Child = (Math.round((Child + ((Child * percentage) / 100)) * 100) / 100);
 }
 
 function employeeCoverage(idOrName) {
